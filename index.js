@@ -100,7 +100,7 @@ figlet.text("LocalSec", { font: "Speed" }, (err, data) => {
     asciiBanner = "{center}{bold}{bright-cyan-fg}LocalSec{/bright-cyan-fg}{/bold}{/center}";
   }
 
-  const descriptionText = "{center}{bold}{bright-yellow-fg}✦ . ── Bot Tự Động Fishing Frenzy!! ── .✦{/bright-yellow-fg}{/bold}{/center}";
+  const descriptionText = "{center}{bold}{bright-yellow-fg}✦ . ── Đừng câu cá nữa, câu em Vân đi!!! ── .✦{/bright-yellow-fg}{/bold}{/center}";
   headerBox.setContent(`${asciiBanner}\n${descriptionText}`);
 
   const totalLines = headerBox.getContent().split("\n").length;
