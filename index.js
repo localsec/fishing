@@ -124,15 +124,15 @@ function initMainInterface() {
     style: { fg: "white" }
   });
 
-  figlet.text("NT EXHAUST", { font: "Speed" }, (err, data) => {
+  figlet.text("LocalSec", { font: "Speed" }, (err, data) => {
     let asciiBanner = "";
     if (!err) {
       asciiBanner = `{center}{bold}{bright-cyan-fg}${data}{/bright-cyan-fg}{/bold}{/center}`;
     } else {
-      asciiBanner = "{center}{bold}{bright-cyan-fg}NT EXHAUST{/bright-cyan-fg}{/bold}{/center}";
+      asciiBanner = "{center}{bold}{bright-cyan-fg}LocalSec{/bright-cyan-fg}{/bold}{/center}";
     }
 
-    const descriptionText = "{center}{bold}{bright-yellow-fg}✦ . ── Bot Tự Động Fishing Frenzy!! ── .✦{/bright-yellow-fg}{/bold}{/center}";
+    const descriptionText = "{center}{bold}{bright-yellow-fg}✦ . ── Đừng câu cá nữa, Câu em Vân đi!! ── .✦{/bright-yellow-fg}{/bold}{/center}";
     headerBox.setContent(`${asciiBanner}\n${descriptionText}`);
 
     const totalLines = headerBox.getContent().split("\n").length;
