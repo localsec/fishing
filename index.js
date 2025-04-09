@@ -84,7 +84,7 @@ const passwordPrompt = blessed.prompt({
 // Hàm kiểm tra mật khẩu và khởi động giao diện chính
 function checkPassword() {
   passwordPrompt.readInput("Hoàng Sa - Trường Sa là của nước nào?", "", (err, value) => {
-    if (err || !value || value.trim() !== "Việt Nam") {
+    if (err || !value || value.trim() !== "Viet Nam") {
       screen.destroy();
       console.log("Mật khẩu sai. Chương trình sẽ thoát.");
       process.exit(1);
