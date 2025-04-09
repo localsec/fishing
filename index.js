@@ -147,7 +147,7 @@ const userInfoBox = blessed.box({
     "IP: đang tải..."
 });
 
-const mainMenu = blessed.box({
+const mainMenu = blessed.list({
   label: " Thực đơn ",
   top: 0,
   left: "60%",
@@ -162,7 +162,8 @@ const mainMenu = blessed.box({
     item: { fg: "white" },
     selected: { bg: "green", fg: "black" },
     border: { fg: "yellow" }
-  }
+  },
+  items: normalMenuItems
 });
 
 const promptBox = blessed.prompt({
