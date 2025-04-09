@@ -61,7 +61,7 @@ async function getExternalIP() {
 
 const screen = blessed.screen({
   smartCSR: true,
-  title: "MT Exhaust",
+  title: "LocalSec",
   fullUnicode: true,
   mouse: true,
 });
@@ -92,12 +92,12 @@ const headerBox = blessed.box({
   style: { fg: "white" }
 });
 
-figlet.text("NT EXHAUST", { font: "Speed" }, (err, data) => {
+figlet.text("LocalSec", { font: "Speed" }, (err, data) => {
   let asciiBanner = "";
   if (!err) {
     asciiBanner = `{center}{bold}{bright-cyan-fg}${data}{/bright-cyan-fg}{/bold}{/center}`;
   } else {
-    asciiBanner = "{center}{bold}{bright-cyan-fg}NT EXHAUST{/bright-cyan-fg}{/bold}{/center}";
+    asciiBanner = "{center}{bold}{bright-cyan-fg}LocalSec{/bright-cyan-fg}{/bold}{/center}";
   }
 
   const descriptionText = "{center}{bold}{bright-yellow-fg}✦ . ── Bot Tự Động Fishing Frenzy!! ── .✦{/bright-yellow-fg}{/bold}{/center}";
