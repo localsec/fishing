@@ -76,6 +76,7 @@ let accountPromptActive = false;
 const normalMenuItems = [
   "Tự động hoàn thành nhiệm vụ",
   "Tự động câu cá",
+  "Tự động câu cá tất cả tài khoản",
   "Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ",
   "Thay đổi tài khoản",
   "Xóa nhật ký",
@@ -225,7 +226,7 @@ Ví: ${getShortAddress(data.walletAddress)}
 Cấp độ: ${data.level}
 Vàng: ${data.gold}
 Năng lượng: ${data.energy}
-EXP: ${data.exp !== undefined ? data.exp : "N/A"}
+EXP: ${data.exp !== undefined ? data.exp : "বিচ্যুতি"}
 ${ipLine}`;
     userInfoBox.setContent(content);
     safeRender();
@@ -240,6 +241,7 @@ function updateMenuItems() {
     mainMenu.setItems([
       "{gray-fg}Tự động hoàn thành nhiệm vụ{/gray-fg}",
       "{gray-fg}Tự động câu cá{/gray-fg}",
+      "{gray-fg}Tự động câu cá tất cả tài khoản{/gray-fg}",
       "{gray-fg}Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ{/gray-fg}",
       "{gray-fg}Thay đổi tài khoản{/gray-fg}",
       "Xóa nhật ký",
@@ -251,6 +253,7 @@ function updateMenuItems() {
     mainMenu.setItems([
       "Tự động hoàn thành nhiệm vụ",
       "Tự động câu cá",
+      "Tự động câu cá tất cả tài khoản",
       "Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ",
       "Thay đổi tài khoản",
       "Xóa nhật ký",
@@ -565,11 +568,6 @@ async function processFishing(range, energyCost, times) {
     }
   }
   addLog(`{green-fg}Tự động câu cá hoàn tất: ${range}{/green-fg}`);
-  autoFishingRunning = false;
-  updateMenuItems();
-  mainMenu.select(0);
-  mainMenu.focus();
-  screen.render();
 }
 
 function showFishingPopup() {
@@ -653,6 +651,11 @@ function showFishingPopup() {
       mainMenu.focus();
       screen.render();
       await processFishing(range, energyCost, times);
+      autoFishingRunning = false;
+      updateMenuItems();
+      mainMenu.select(0);
+      mainMenu.focus();
+      screen.render();
     });
   });
   cancelButton.on('press', () => {
@@ -667,6 +670,76 @@ function showFishingPopup() {
     fishingContainer.destroy();
     addLog("{yellow-fg}Tự động câu cá đã bị hủy.{/yellow-fg}");
     autoProcessCancelled = false;
+    mainMenu.select(0);
+    mainMenu.focus();
+    screen.render();
+  });
+}
+
+async function autoFishAllAccounts() {
+  if (tokens.length === 0) {
+    addLog("{red-fg}Không có tài khoản trong token.txt{/red-fg}");
+    return;
+  }
+
+  autoFishingRunning = true;
+  autoProcessCancelled = false;
+  updateMenuItems();
+
+  promptBox.setFront();
+  screen.render();
+  promptBox.readInput("Nhập số lần câu cá cho mỗi tài khoản:", "", async (err, value) => {
+    if (err || !value) {
+      addLog("{yellow-fg}Đầu vào đã bị hủy.{/yellow-fg}");
+      autoFishingRunning = false;
+      updateMenuItems();
+      mainMenu.select(0);
+      mainMenu.focus();
+      screen.render();
+      return;
+    }
+
+    const times = parseInt(value);
+    if (isNaN(times) || times <= 0) {
+      addLog("{red-fg}Đầu vào không hợp lệ. Quy trình tự động câu cá tất cả tài khoản đã bị hủy.{/red-fg}");
+      autoFishingRunning = false;
+      updateMenuItems();
+      mainMenu.select(0);
+      mainMenu.focus();
+      screen.render();
+      return;
+    }
+
+    const range = 'Long Range';
+    const energyCost = 3;
+
+    for (let i = 0; i < tokens.length; i++) {
+      if (autoProcessCancelled) {
+        addLog("{yellow-fg}Quy trình tự động câu cá tất cả tài khoản đã bị hủy.{/yellow-fg}");
+        break;
+      }
+
+      activeToken = tokens[i];
+      activeProxy = null; // Không sử dụng proxy để đơn giản hóa
+      addLog(`{bright-yellow-fg}Bắt đầu câu cá cho tài khoản thứ ${i + 1}/{tokens.length}{/bright-yellow-fg}`);
+
+      // Cập nhật thông tin tài khoản
+      await updateUserInfo();
+
+      const totalCost = energyCost * times;
+      if (totalCost > currentEnergy) {
+        addLog(`{yellow-fg}Năng lượng không đủ cho tài khoản thứ ${i + 1}!{/yellow-fg} Năng lượng hiện có: {bright-red-fg}${currentEnergy}{/bright-red-fg}, Năng lượng cần thiết: {bright-green-fg}${totalCost}.{/bright-green-fg}`);
+        continue;
+      }
+
+      await processFishing(range, energyCost, times);
+      addLog(`{green-fg}Hoàn tất câu cá cho tài khoản thứ ${i + 1}/{tokens.length}{/green-fg}`);
+      await showCountdown(5); // Đợi 5 giây trước khi chuyển sang tài khoản tiếp theo
+    }
+
+    addLog("{green-fg}Tự động câu cá tất cả tài khoản đã hoàn tất.{/green-fg}");
+    autoFishingRunning = false;
+    updateMenuItems();
     mainMenu.select(0);
     mainMenu.focus();
     screen.render();
@@ -879,6 +952,9 @@ mainMenu.on("select", (item) => {
       break;
     case "Tự động câu cá":
       autoFishing();
+      break;
+    case "Tự động câu cá tất cả tài khoản":
+      autoFishAllAccounts();
       break;
     case "Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ":
       autoCompleteDailyCheckinAndTask();
