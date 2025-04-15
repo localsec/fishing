@@ -75,9 +75,11 @@ let accountPromptActive = false;
 
 const normalMenuItems = [
   "Tự động hoàn thành nhiệm vụ",
+  "Tự động hoàn thành nhiệm vụ tất cả tài khoản",
   "Tự động câu cá",
   "Tự động câu cá tất cả tài khoản",
   "Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ",
+  "Tự động đăng nhập & nhiệm vụ tất cả tài khoản",
   "Thay đổi tài khoản",
   "Xóa nhật ký",
   "Làm mới",
@@ -226,7 +228,7 @@ Ví: ${getShortAddress(data.walletAddress)}
 Cấp độ: ${data.level}
 Vàng: ${data.gold}
 Năng lượng: ${data.energy}
-EXP: ${data.exp !== undefined ? data.exp : "বিচ্যুতি"}
+EXP: ${data.exp !== undefined ? data.exp : "N/A"}
 ${ipLine}`;
     userInfoBox.setContent(content);
     safeRender();
@@ -240,9 +242,11 @@ function updateMenuItems() {
   if (autoTaskRunning || autoFishingRunning || autoDailyRunning) {
     mainMenu.setItems([
       "{gray-fg}Tự động hoàn thành nhiệm vụ{/gray-fg}",
+      "{gray-fg}Tự động hoàn thành nhiệm vụ tất cả tài khoản{/gray-fg}",
       "{gray-fg}Tự động câu cá{/gray-fg}",
       "{gray-fg}Tự động câu cá tất cả tài khoản{/gray-fg}",
       "{gray-fg}Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ{/gray-fg}",
+      "{gray-fg}Tự động đăng nhập & nhiệm vụ tất cả tài khoản{/gray-fg}",
       "{gray-fg}Thay đổi tài khoản{/gray-fg}",
       "Xóa nhật ký",
       "Dừng tiến trình",
@@ -252,9 +256,11 @@ function updateMenuItems() {
   } else {
     mainMenu.setItems([
       "Tự động hoàn thành nhiệm vụ",
+      "Tự động hoàn thành nhiệm vụ tất cả tài khoản",
       "Tự động câu cá",
       "Tự động câu cá tất cả tài khoản",
       "Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ",
+      "Tự động đăng nhập & nhiệm vụ tất cả tài khoản",
       "Thay đổi tài khoản",
       "Xóa nhật ký",
       "Làm mới",
@@ -324,6 +330,44 @@ async function autoCompleteTask() {
     updateMenuItems();
     updateUserInfo();
   }
+}
+
+async function autoCompleteTaskAllAccounts() {
+  if (tokens.length === 0) {
+    addLog("{red-fg}Không có tài khoản trong token.txt{/red-fg}");
+    return;
+  }
+
+  autoTaskRunning = true;
+  autoProcessCancelled = false;
+  updateMenuItems();
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (autoProcessCancelled) {
+      addLog("{yellow-fg}Quy trình tự động hoàn thành nhiệm vụ tất cả tài khoản đã bị hủy.{/yellow-fg}");
+      break;
+    }
+
+    activeToken = tokens[i];
+    activeProxy = null; // Không sử dụng proxy để đơn giản hóa
+    addLog(`{bright-yellow-fg}Bắt đầu hoàn thành nhiệm vụ cho tài khoản thứ ${i + 1}/{tokens.length}{/bright-yellow-fg}`);
+
+    // Cập nhật thông tin tài khoản
+    await updateUserInfo();
+
+    // Thực hiện hoàn thành nhiệm vụ
+    await autoCompleteTask();
+
+    addLog(`{green-fg}Hoàn tất nhiệm vụ cho tài khoản thứ ${i + 1}/{tokens.length}{/green-fg}`);
+    await showCountdown(5); // Đợi 5 giây trước khi chuyển sang tài khoản tiếp theo
+  }
+
+  addLog("{green-fg}Tự động hoàn thành nhiệm vụ tất cả tài khoản đã hoàn tất.{/green-fg}");
+  autoTaskRunning = false;
+  updateMenuItems();
+  mainMenu.select(0);
+  mainMenu.focus();
+  screen.render();
 }
 
 async function autoCompleteDailyCheckinAndTask() {
@@ -408,6 +452,44 @@ async function autoCompleteDailyCheckinAndTask() {
   }
 
   addLog("{green-fg}Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ đã hoàn tất.{/green-fg}");
+  autoDailyRunning = false;
+  updateMenuItems();
+  mainMenu.select(0);
+  mainMenu.focus();
+  screen.render();
+}
+
+async function autoCompleteDailyAllAccounts() {
+  if (tokens.length === 0) {
+    addLog("{red-fg}Không có tài khoản trong token.txt{/red-fg}");
+    return;
+  }
+
+  autoDailyRunning = true;
+  autoProcessCancelled = false;
+  updateMenuItems();
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (autoProcessCancelled) {
+      addLog("{yellow-fg}Quy trình tự động đăng nhập & nhiệm vụ tất cả tài khoản đã bị hủy.{/yellow-fg}");
+      break;
+    }
+
+    activeToken = tokens[i];
+    activeProxy = null; // Không sử dụng proxy để đơn giản hóa
+    addLog(`{bright-yellow-fg}Bắt đầu đăng nhập & nhiệm vụ cho tài khoản thứ ${i + 1}/{tokens.length}{/bright-yellow-fg}`);
+
+    // Cập nhật thông tin tài khoản
+    await updateUserInfo();
+
+    // Thực hiện đăng nhập và nhiệm vụ
+    await autoCompleteDailyCheckinAndTask();
+
+    addLog(`{green-fg}Hoàn tất đăng nhập & nhiệm vụ cho tài khoản thứ ${i + 1}/{tokens.length}{/green-fg}`);
+    await showCountdown(5); // Đợi 5 giây trước khi chuyển sang tài khoản tiếp theo
+  }
+
+  addLog("{green-fg}Tự động đăng nhập & nhiệm vụ tất cả tài khoản đã hoàn tất.{/green-fg}");
   autoDailyRunning = false;
   updateMenuItems();
   mainMenu.select(0);
@@ -950,6 +1032,9 @@ mainMenu.on("select", (item) => {
     case "Tự động hoàn thành nhiệm vụ":
       autoCompleteTask();
       break;
+    case "Tự động hoàn thành nhiệm vụ tất cả tài khoản":
+      autoCompleteTaskAllAccounts();
+      break;
     case "Tự động câu cá":
       autoFishing();
       break;
@@ -958,6 +1043,9 @@ mainMenu.on("select", (item) => {
       break;
     case "Tự động hoàn thành đăng nhập hàng ngày & nhiệm vụ":
       autoCompleteDailyCheckinAndTask();
+      break;
+    case "Tự động đăng nhập & nhiệm vụ tất cả tài khoản":
+      autoCompleteDailyAllAccounts();
       break;
     case "Thay đổi tài khoản":
       changedAccount();
