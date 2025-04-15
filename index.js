@@ -87,7 +87,7 @@ const headerBox = blessed.box({
   top: 0,
   left: "center",
   width: "100%",
-  height: 5, 
+  height: 5,
   tags: true,
   style: { fg: "white" }
 });
@@ -104,7 +104,7 @@ figlet.text("LocalSec", { font: "Speed" }, (err, data) => {
   headerBox.setContent(`${asciiBanner}\n${descriptionText}`);
 
   const totalLines = headerBox.getContent().split("\n").length;
-  headerContentHeight = totalLines + 1; 
+  headerContentHeight = totalLines + 1;
   adjustLayout();
   screen.render();
 });
@@ -594,8 +594,6 @@ function showFishingPopup() {
     mouse: true,
     vi: true,
     items: [
-      'Khoảng cách ngắn (1 Năng lượng)',
-      'Khoảng cách trung bình (2 Năng lượng)',
       'Khoảng cách xa (3 Năng lượng)'
     ],
     tags: true,
@@ -619,10 +617,8 @@ function showFishingPopup() {
   fishingList.on('select', (item, index) => {
     fishingContainer.destroy();
     screen.render();
-    let range, energyCost;
-    if (index === 0) { range = 'Short Range'; energyCost = 1; }
-    else if (index === 1) { range = 'Mid Range'; energyCost = 2; }
-    else if (index === 2) { range = 'Long Range'; energyCost = 3; }
+    let range = 'Long Range';
+    let energyCost = 3;
     addLog(`{bright-yellow-fg}Khoảng cách được chọn:{/bright-yellow-fg} {bold}{bright-cyan-fg}${range}{/bright-cyan-fg}{/bold} (Chi phí mỗi lần câu: {bold}{bright-cyan-fg}${energyCost}{/bright-cyan-fg}{/bold} Năng lượng)`);
     promptBox.setFront();
     screen.render();
@@ -734,7 +730,7 @@ async function changedAccount() {
       mainMenu.select(0);
       mainMenu.focus();
       screen.render();
-      accountPromptActive = false; 
+      accountPromptActive = false;
     }
   });
 
@@ -767,7 +763,7 @@ function showProxyPrompt(newToken, accountLabel) {
   proxyPrompt.on("select", async (pItem, pIndex) => {
     proxyPrompt.destroy();
     screen.render();
-    if (pIndex === 1) { 
+    if (pIndex === 1) {
       let proxies = [];
       try {
         proxies = fs.readFileSync("proxy.txt", "utf8")
@@ -866,12 +862,12 @@ async function autoFishing() {
 
 mainMenu.on("select", (item) => {
   const text = item.getText();
-  
+
   if ((autoTaskRunning || autoFishingRunning || autoDailyRunning) && text !== "Dừng tiến trình") {
     addLog("{yellow-fg}Đang có tiến trình chạy. Vui lòng đợi tiến trình hoàn tất hoặc chọn 'Dừng tiến trình'.{/yellow-fg}");
     return;
   }
-  
+
   if (text === "Dừng tiến trình") {
     autoProcessCancelled = true;
     addLog("{red-fg}Dừng tiến trình đã được chấp nhận. Tiến trình sẽ bị dừng lại.{/red-fg}");
